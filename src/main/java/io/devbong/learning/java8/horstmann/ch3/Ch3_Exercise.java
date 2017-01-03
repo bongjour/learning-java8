@@ -1,11 +1,11 @@
-package io.devbong.learning.java8.book1.ch3;
+package io.devbong.learning.java8.horstmann.ch3;
 
-import io.devbong.learning.java8.book1.ch3.Employee.Name;
+import io.devbong.learning.java8.horstmann.ch3.Employee.Name;
 
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
-public class Ch3_first {
+public class Ch3_Exercise {
 
 	public static void main(String[] args) {
 

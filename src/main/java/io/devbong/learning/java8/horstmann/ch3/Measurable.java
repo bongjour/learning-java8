@@ -1,4 +1,4 @@
-package io.devbong.learning.java8.book1.ch3;
+package io.devbong.learning.java8.horstmann.ch3;
 
 public interface Measurable {
 

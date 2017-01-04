@@ -1,10 +1,8 @@
 package io.devbong.learning.java8.horstmann.ch8;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StreamExercise {
@@ -63,6 +61,16 @@ public class StreamExercise {
 			.flatMap(StreamExercise::squareRoot)
 			.ifPresent(System.out::println);
 
+
+		contents.stream().toArray(String[]::new);
+
+		HashSet<String> sets = contents.stream().collect(Collectors.toCollection(HashSet::new));
+		String joiningString = contents.stream().collect(Collectors.joining(","));
+		System.out.println(joiningString);
+
+		IntSummaryStatistics statistics = contents.stream().collect(Collectors.summarizingInt(String::length));
+		System.out.println(statistics.getAverage());
+		System.out.println(statistics.getMax());
 	}
 
 	private static Optional<Double> inverse(Double x) {

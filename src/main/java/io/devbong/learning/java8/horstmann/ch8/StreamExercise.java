@@ -2,7 +2,9 @@ package io.devbong.learning.java8.horstmann.ch8;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class StreamExercise {
@@ -29,5 +31,45 @@ public class StreamExercise {
 			.limit(20);
 
 		peekTest1.forEach(System.out::println);
+
+		// reverse, distinct
+		Stream<String> distinct = contents.stream()
+			.sorted(Comparator.comparing(String::length).reversed())
+			.distinct();
+
+		distinct.forEach(System.out::println);
+
+		// filter, findFirst, ifPresent
+		contents.stream()
+			.filter(each -> each.startsWith("1"))
+			.findFirst()
+			.ifPresent(System.out::println);
+
+		// orElseThrow
+		contents.stream()
+			.filter(each -> each.startsWith("A"))
+			.findAny();
+		//.orElseThrow(IllegalStateException::new);
+
+		System.out.println(Optional.ofNullable(null).orElse("null"));
+
+		// compose Optional value with flatMap
+		inverse(10.0)
+			.flatMap(StreamExercise::squareRoot)
+			.ifPresent(System.out::println);
+
+		Optional.of(4.0)
+			.flatMap(StreamExercise::inverse)
+			.flatMap(StreamExercise::squareRoot)
+			.ifPresent(System.out::println);
+
+	}
+
+	private static Optional<Double> inverse(Double x) {
+		return x == 0 ? Optional.empty() : Optional.of(1 / x);
+	}
+
+	private static Optional<Double> squareRoot(Double x) {
+		return x < 0 ? Optional.empty() : Optional.of(Math.sqrt(x));
 	}
 }

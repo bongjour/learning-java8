@@ -71,6 +71,13 @@ public class StreamExercise {
 		IntSummaryStatistics statistics = contents.stream().collect(Collectors.summarizingInt(String::length));
 		System.out.println(statistics.getAverage());
 		System.out.println(statistics.getMax());
+
+
+		List<String> lists = Arrays.asList("1","2","3","4","5","6","7");
+
+		lists.parallelStream().forEach(System.out::println);
+
+		System.out.println("done");
 	}
 
 	private static Optional<Double> inverse(Double x) {

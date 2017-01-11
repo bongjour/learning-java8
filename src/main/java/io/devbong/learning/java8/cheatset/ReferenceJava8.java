@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 public class ReferenceJava8 {
 
@@ -69,6 +70,76 @@ public class ReferenceJava8 {
 		// custom constructor reference
 		TriFunction<String, Integer, String, String, Apple> appleFactory = Apple::new;
 		Apple newApple = appleFactory.apply("사과 100", 1000, "레드", "한국");
+
+		/**
+		 * stream
+		 */
+
+		inventories.stream()
+			.collect(Collectors.groupingBy(Apple::getColor));
+
+		// parallelStream
+		numbers.parallelStream().forEach(each -> {
+			System.out.println(Thread.currentThread().getName() + " : " + each);
+		});
+
+		// filter & distinct
+		inventories.stream()
+			.filter(Apple::isMadeByKorea)
+			.distinct()
+			.forEach(System.out::println);
+
+		// limit
+		inventories.stream()
+			.limit(3)
+			.collect(Collectors.toList())
+			.forEach(System.out::println);
+
+		System.out.println("----");
+		inventories.stream()
+			.filter(apple -> !apple.isMadeByKorea())
+			.forEach(System.out::println);
+		System.out.println("----");
+
+		// skip
+		inventories.stream()
+			.filter(apple -> !apple.isMadeByKorea())
+			.skip(1)
+			.forEach(System.out::println);
+
+		String[] words = { "Hello", "World" };
+
+		// flatMap
+		Arrays.stream(words)
+			.map(word -> word.split(""))
+			.flatMap(Arrays::stream)
+			.distinct()
+			.forEach(System.out::println);
+
+		// 연습문제
+		List<Integer> numbers1 = Arrays.asList(1, 2, 3);
+		List<Integer> numbers2 = Arrays.asList(3, 4);
+
+		numbers1.stream()
+			.flatMap(num1 ->
+				numbers2.stream()
+					.map(num2 -> new int[] { num1, num2 }))
+			.forEach(arr -> System.out.println(arr[0] + ", " + arr[1]));
+
+		// anyMatch
+		System.out.println(inventories.stream().anyMatch(Apple::isMadeByKorea));
+
+		// allMatch
+		System.out.println(inventories.stream().allMatch(Apple::isMadeByKorea));
+
+		// nonMatch
+		System.out.println(inventories.stream().noneMatch(Apple::isMadeByKorea));
+
+		// findAny
+		inventories.stream().filter(Apple::isMadeByKorea).findAny().ifPresent(System.out::println);
+
+		// findFirst <-- 병렬성에서는 사용하지 말자.
+		inventories.stream().filter(Apple::isMadeByKorea).findFirst().ifPresent(System.out::println);
 
 	}
 

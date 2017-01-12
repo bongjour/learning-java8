@@ -1,10 +1,16 @@
 package io.devbong.learning.java8.cheatset;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.*;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.*;
 
 public class ReferenceJava8 {
 
@@ -24,11 +30,11 @@ public class ReferenceJava8 {
 
 		// sort with lambda
 		inventories.sort((apple1, apple2) -> apple1.getWeight().compareTo(apple2.getWeight()));
-		inventories.sort(Comparator.comparing(apple -> apple.getWeight()));
-		inventories.sort(Comparator.comparing(Apple::getWeight));
+		inventories.sort(comparing(apple -> apple.getWeight()));
+		inventories.sort(comparing(Apple::getWeight));
 
 		// sort reverse
-		inventories.sort(Comparator.comparing(Apple::getWeight).reversed());
+		inventories.sort(comparing(Apple::getWeight).reversed());
 
 		// consumer
 		inventories.forEach(System.out::println);
@@ -44,7 +50,7 @@ public class ReferenceJava8 {
 			.orElse(new Apple());
 
 		// comparator combine
-		inventories.sort(Comparator.comparing(Apple::getWeight)
+		inventories.sort(comparing(Apple::getWeight)
 			.reversed()
 			.thenComparing(Apple::getName)
 		);
@@ -76,7 +82,7 @@ public class ReferenceJava8 {
 		 */
 
 		inventories.stream()
-			.collect(Collectors.groupingBy(Apple::getColor));
+			.collect(groupingBy(Apple::getColor));
 
 		// parallelStream
 		numbers.parallelStream().forEach(each -> {
@@ -92,7 +98,7 @@ public class ReferenceJava8 {
 		// limit
 		inventories.stream()
 			.limit(3)
-			.collect(Collectors.toList())
+			.collect(toList())
 			.forEach(System.out::println);
 
 		System.out.println("----");
@@ -140,6 +146,156 @@ public class ReferenceJava8 {
 
 		// findFirst <-- 병렬성에서는 사용하지 말자.
 		inventories.stream().filter(Apple::isMadeByKorea).findFirst().ifPresent(System.out::println);
+
+		// reduce 초기값, BinaryOperator
+		Integer reduce1 = numbers.stream().reduce(0, (a, b) -> a + b);
+
+		Optional<Integer> reduce2 = numbers.stream().reduce((a, b) -> a + b);
+		System.out.println(reduce2.get());
+
+		// 최대값, 최솟값
+		Optional<Integer> reduce3 = numbers.stream().reduce(Integer::max);
+		System.out.println(reduce3.get());
+		// or
+		Optional<Integer> reduce4 = numbers.stream().reduce((a, b) -> a < b ? b : a);
+		System.out.println(reduce4.get());
+
+		// min with min & comparing
+		Optional<Apple> min = inventories.stream().min(comparing(Apple::getWeight));
+
+		// reduce sum
+		Integer totalWeight = inventories.stream()
+			.map(Apple::getWeight)
+			.reduce(0, (a, b) -> a + b);
+
+		System.out.println(totalWeight);
+
+		// mapToInt
+		int sum = inventories.stream()
+			.mapToInt(Apple::getWeight)
+			.sum();
+
+		// mapToInt boxed
+		Stream<Integer> boxed = inventories.stream()
+			.mapToInt(Apple::getWeight)
+			.boxed();
+
+		// OptionalInt
+		OptionalInt maxOpt = inventories.stream()
+			.mapToInt(Apple::getWeight)
+			.max();
+
+		maxOpt.orElse(1);
+		maxOpt.orElseGet(() -> 1);
+
+		// IntStream range, rangeClosed
+		IntStream intStream = IntStream.rangeClosed(1, 100).filter(n -> n % 2 == 0);
+		intStream.forEach(System.out::println);
+
+		// map to object
+		Stream<Integer> integerStream = IntStream.rangeClosed(1, 100)
+			.mapToObj(n -> n);
+
+		// make stream
+		Stream.of(1, 2, 3);
+		Stream.empty();
+		int[] ints = { 1, 2, 3 };
+		Arrays.stream(ints);
+
+		// file stream
+		try (Stream<String> lines = Files.lines(Paths.get(""))) {
+
+		} catch (IOException e) {
+			// ignore
+		}
+
+		// 무한 스트림 만들기
+		// iterator, generator
+		Stream.iterate(0, n -> n + 2)
+			.limit(10)
+			.forEach(System.out::println);
+
+		// 피보나치 수열
+		System.out.println("피보나치");
+		Stream.iterate(new long[] { 0, 1 }, n -> new long[] { n[1], n[0] + n[1] })
+			.limit(10)
+			.map(t -> t[0])
+			.forEach(System.out::println);
+
+		// generator
+		// supplier를 받기 때문에 잘 쓰면 활용도가 높을 수도...
+		Stream.generate(Math::random)
+			.limit(5)
+			.forEach(System.out::println);
+
+		// IntStream
+		IntStream.generate(() -> 1).limit(100).forEach(System.out::println);
+
+		/**
+		 * collector?
+		 */
+
+		// counting
+		numbers.stream().collect(counting());
+		numbers.stream().count();
+
+		// maxBy
+		Optional<Apple> maxBy = inventories.stream().collect(maxBy(comparing(Apple::getWeight)));
+
+		//averagingInt, averatingLong...
+		// summingInt
+		Integer summingInt = inventories.stream().collect(summingInt(Apple::getWeight));
+
+		// with reducing
+		Integer reducingSum = inventories.stream().collect(reducing(0, Apple::getWeight, Integer::sum));
+		Integer reduceSum = inventories.stream().map(Apple::getWeight).reduce(Integer::sum).get();
+
+		// intSummaryStatistics
+		IntSummaryStatistics intSummaryStatistics1 = inventories.stream().collect(summarizingInt(Apple::getWeight));
+		IntSummaryStatistics intSummaryStatistics2 = inventories.stream().mapToInt(Apple::getWeight).summaryStatistics();
+
+		// joining
+		String joining = inventories.stream().map(Apple::getName).collect(joining(",", "_", "-"));
+		System.out.println(joining);
+
+		// Collectors.reducing
+		Integer totalWeight1 = inventories.stream().collect(reducing(
+			0, Apple::getWeight, (oldOne, newOne) -> oldOne + newOne));
+
+		// maxBy with Collectors.reducing
+		Optional<Apple> maxBy1 = inventories.stream()
+			.collect(reducing(
+				(oldOne, newOne) -> oldOne.getWeight() > newOne.getWeight() ? oldOne : newOne));
+
+		// grouping
+		Map<String, List<Apple>> group1 = inventories.stream().collect(groupingBy(Apple::getCountry));
+
+		Map<String, List<Apple>> group2 = inventories.stream().collect(
+			groupingBy(apple -> {
+				if (apple.getWeight() > 100) {
+					return "HEAVY";
+				} else {
+					return "NOT_HEAVY";
+				}
+			}));
+
+		Map<String, Map<Integer, List<Apple>>> group3 = inventories.stream().collect(
+			groupingBy(Apple::getCountry,
+				groupingBy(Apple::getWeight)));
+
+		Map<String, Long> group4 = inventories.stream().collect(groupingBy(Apple::getCountry, counting()));
+
+		Map<String, Optional<Apple>> group5 = inventories.stream().collect(
+			groupingBy(Apple::getCountry,
+				maxBy(comparingInt(Apple::getWeight))));
+
+		// collectAndThen 위 예제의 Optional을 없애는 방법
+		inventories.stream()
+			.collect(groupingBy(Apple::getCountry,
+				collectingAndThen(
+					maxBy(comparingInt(Apple::getWeight)), Optional::get)));
+
+		inventories.stream().collect(groupingBy(Apple::getCountry, summingInt(Apple::getWeight)));
 
 	}
 

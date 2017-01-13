@@ -267,7 +267,9 @@ public class ReferenceJava8 {
 			.collect(reducing(
 				(oldOne, newOne) -> oldOne.getWeight() > newOne.getWeight() ? oldOne : newOne));
 
-		// grouping
+		/**
+		 * grouping
+		 */
 		Map<String, List<Apple>> group1 = inventories.stream().collect(groupingBy(Apple::getCountry));
 
 		Map<String, List<Apple>> group2 = inventories.stream().collect(
@@ -279,10 +281,12 @@ public class ReferenceJava8 {
 				}
 			}));
 
+		// 다수준 그룹화
 		Map<String, Map<Integer, List<Apple>>> group3 = inventories.stream().collect(
 			groupingBy(Apple::getCountry,
 				groupingBy(Apple::getWeight)));
 
+		// 서브그룹으로 수집
 		Map<String, Long> group4 = inventories.stream().collect(groupingBy(Apple::getCountry, counting()));
 
 		Map<String, Optional<Apple>> group5 = inventories.stream().collect(
@@ -290,13 +294,66 @@ public class ReferenceJava8 {
 				maxBy(comparingInt(Apple::getWeight))));
 
 		// collectAndThen 위 예제의 Optional을 없애는 방법
-		inventories.stream()
+		Map<String, Apple> group6 = inventories.stream()
 			.collect(groupingBy(Apple::getCountry,
 				collectingAndThen(
 					maxBy(comparingInt(Apple::getWeight)), Optional::get)));
 
-		inventories.stream().collect(groupingBy(Apple::getCountry, summingInt(Apple::getWeight)));
+		// groupingBy와 함께 사용하는 다른 컬렉터 예제
+		Map<String, Integer> group7 = inventories.stream().collect(groupingBy(Apple::getCountry, summingInt(Apple::getWeight)));
 
+		Map<String, HashSet<String>> group8 = inventories.stream()
+			.collect(groupingBy(Apple::getCountry, mapping(apple -> {
+				if (apple.getWeight() > 150) {
+					return "BIG";
+				} else {
+					return "SMALL";
+				}
+			}, toCollection(HashSet::new)))); // or toSet()
+
+		/**
+		 * partitioning
+		 */
+
+		Map<Boolean, List<Apple>> partition1 = inventories.stream().collect(partitioningBy(Apple::isMadeByKorea));
+
+		Map<Boolean, Map<String, List<Apple>>> partition2 = inventories.stream()
+			.collect(partitioningBy(Apple::isMadeByKorea, groupingBy(Apple::getCountry)));
+
+		Map<Boolean, Apple> partition3 = inventories.stream()
+			.collect(partitioningBy(Apple::isMadeByKorea,
+				collectingAndThen(maxBy(comparing(Apple::getWeight)), Optional::get)));
+
+		/**
+		 * 숫자를 소수와 비소수로 분할하기
+		 */
+
+		Map<Boolean, List<Integer>> collect = IntStream.rangeClosed(2, 100).boxed()
+			.collect(partitioningBy(candidate -> isPrime(candidate)));
+
+		// toList
+		// toSet
+		// toCollection
+		// counting
+		// summingInt
+		// averagingInt
+		// summarizingInt
+		// joining
+		// maxBy
+		// minBy
+		// reducing
+		// collectingAndThen
+		// groupingBy
+		// partitionBy
+
+		/**
+		 * collector interface
+		 */
+	}
+
+	public static boolean isPrime(int candidate) {
+		int candidateRoot = (int) Math.sqrt((double) candidate);
+		return IntStream.range(2, candidateRoot).noneMatch(i -> candidate % 2 == 0);
 	}
 
 	public static double integrate(DoubleFunction<Double> f, double a, double b) {

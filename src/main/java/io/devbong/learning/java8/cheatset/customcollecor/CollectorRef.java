@@ -1,5 +1,6 @@
 package io.devbong.learning.java8.cheatset.customcollecor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +25,11 @@ public class CollectorRef {
 			Dish.of("알리올리오", 140, FRANCE)
 		);
 
-		List<Dish> collect = dishes.stream().collect(new ToListCollector<Dish>());
+		List<Dish> collect1 = dishes.stream().collect(new ToListCollector<Dish>());
+
+		// custom 없이 collector 적용
+		ArrayList<Dish> collect2 = dishes.stream().collect(ArrayList::new, List::add, List::addAll);
+
 
 	}
 

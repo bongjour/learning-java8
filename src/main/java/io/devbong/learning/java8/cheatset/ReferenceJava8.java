@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -349,11 +350,85 @@ public class ReferenceJava8 {
 		/**
 		 * collector interface
 		 */
+
+		// Supplier<T> supplier : 새로운 결과 컨테이너 만들기
+		// BiConsumer<A, T> accumulator : 결과 컨테이너에 요소 추가하기
+		// Function<A, R> finisher : 최종 변환값을 결과 컨테이너로 적용하기
+		// BinaryOperator<A> combiner : 두 결과 컨테이너 병합
+		// Set<Characteristics> characteristics : UNORDERED, CONCURRENT, IDENTITY_FINISH
+
+		/**
+		 * enrich isPrime
+		 */
+		Map<Boolean, List<Integer>> enrichPrimeMap = IntStream.rangeClosed(2, 30)
+			.boxed()
+			.collect(new PrimeNumbersCollector());
+
+
+	}
+
+	private static class PrimeNumbersCollector implements Collector<Integer, Map<Boolean, List<Integer>>, Map<Boolean, List<Integer>>> {
+
+		@Override
+		public Supplier<Map<Boolean, List<Integer>>> supplier() {
+			return () -> new HashMap<Boolean, List<Integer>>() {
+				{
+					put(true, new ArrayList<>());
+					put(false, new ArrayList<>());
+				}
+			};
+		}
+
+		@Override
+		public BiConsumer<Map<Boolean, List<Integer>>, Integer> accumulator() {
+			return (Map<Boolean, List<Integer>> acc, Integer candidate) -> {
+				acc.get(isPrimeEnrich(acc.get(true), candidate))
+					.add(candidate);
+			};
+		}
+
+		@Override
+		public BinaryOperator<Map<Boolean, List<Integer>>> combiner() {
+			return (map1, map2) -> {
+				map1.get(true).addAll(map2.get(true));
+				map2.get(false).addAll(map2.get(false));
+				return map1;
+			};
+		}
+
+		@Override
+		public Function<Map<Boolean, List<Integer>>, Map<Boolean, List<Integer>>> finisher() {
+			return Function.identity();
+		}
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return Collections.unmodifiableSet(EnumSet.of(Characteristics.IDENTITY_FINISH));
+		}
 	}
 
 	public static boolean isPrime(int candidate) {
 		int candidateRoot = (int) Math.sqrt((double) candidate);
+		System.out.println("candidateRoot" + candidateRoot);
 		return IntStream.range(2, candidateRoot).noneMatch(i -> candidate % 2 == 0);
+	}
+
+	public static boolean isPrimeEnrich(List<Integer> primes, int candidate) {
+		int candidateRoot = (int) Math.sqrt((double) candidate);
+		return takeWhile(primes, i -> i < candidateRoot)
+			.stream()
+			.noneMatch(p -> p % 2 == 0);
+	}
+
+	public static <A> List<A> takeWhile(List<A> list, Predicate<A> predicate) {
+		int i = 0;
+		for (A item : list) {
+			if (predicate.test(item)) {
+				return list.subList(0, i);
+			}
+			i++;
+		}
+		return list;
 	}
 
 	public static double integrate(DoubleFunction<Double> f, double a, double b) {
@@ -403,7 +478,7 @@ public class ReferenceJava8 {
 		}
 
 		public String getCountry() {
-			return this.getCountry();
+			return this.country;
 		}
 
 		@Override

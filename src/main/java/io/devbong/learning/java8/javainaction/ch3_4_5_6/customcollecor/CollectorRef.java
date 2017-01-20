@@ -1,10 +1,10 @@
-package io.devbong.learning.java8.cheatset.customcollecor;
+package io.devbong.learning.java8.javainaction.ch3_4_5_6.customcollecor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.devbong.learning.java8.cheatset.customcollecor.CollectorRef.Dish.Country.*;
+import static io.devbong.learning.java8.javainaction.ch3_4_5_6.customcollecor.CollectorRef.Dish.Country.*;
 
 public class CollectorRef {
 
@@ -29,7 +29,6 @@ public class CollectorRef {
 
 		// custom 없이 collector 적용
 		ArrayList<Dish> collect2 = dishes.stream().collect(ArrayList::new, List::add, List::addAll);
-
 
 	}
 
@@ -75,4 +74,5 @@ public class CollectorRef {
 			KOREA, US, JAPAN, UK, FRANCE
 		}
 	}
+
 }

@@ -1,4 +1,4 @@
-package io.devbong.learning.java8.cheatset.customcollecor;
+package io.devbong.learning.java8.javainaction.ch3_4_5_6.customcollecor;
 
 import java.util.*;
 import java.util.function.BiConsumer;

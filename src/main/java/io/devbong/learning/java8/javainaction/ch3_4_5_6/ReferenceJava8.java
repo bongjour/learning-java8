@@ -1,4 +1,4 @@
-package io.devbong.learning.java8.cheatset;
+package io.devbong.learning.java8.javainaction.ch3_4_5_6;
 
 import java.io.IOException;
 import java.nio.file.Files;
